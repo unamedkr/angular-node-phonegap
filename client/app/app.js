@@ -19,11 +19,14 @@
 
 
 
-  function config($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
+  function config($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider, $provide) {
     $urlRouterProvider
       .otherwise('/');
 
     $httpProvider.interceptors.push('authInterceptor');
+
+    $provide.decorator('$exceptionHandler',
+        ['$delegate', '$log', extendExceptionHandler]);
   }
 
   function run($rootScope, $location, Auth, Restangular, gettextCatalog) {
@@ -76,5 +79,21 @@
       }
     };
   }
+  
+  function extendExceptionHandler($delegate, $log) {
+    return function (exception, cause) {
+        $delegate(exception, cause);
+        var errorData = {
+            exception: exception,
+            cause: cause
+        };
+        var msg = 'ERROR PREFIX' + exception.message;
+        $log.error(msg, errorData);
 
+        // Log during dev with http://toastrjs.com
+        // or any other technique you prefer
+        toastr.error(msg);
+    };
+  }
+  
 })();  
