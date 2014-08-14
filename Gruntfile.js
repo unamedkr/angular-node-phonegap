@@ -30,6 +30,7 @@ module.exports = function (grunt) {
     // Project settings
     yeoman: {
       // configurable paths
+      modulename: 'angularNodePhonegapApp',
       client: require('./bower.json').appPath || 'client',
       dist: 'dist',
       mobile: 'mobile'
@@ -48,7 +49,7 @@ module.exports = function (grunt) {
     nggettext_compile: {
       all: {
         options: {
-          module: 'linkApp'
+          module: '<%= yeoman.modulename %>'
         },
         files: {
           '<%= yeoman.client %>/components/translation/translations.js': 

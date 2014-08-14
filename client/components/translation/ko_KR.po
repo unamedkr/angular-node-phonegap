@@ -1,0 +1,17 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Project-Id-Version: ko_KR\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Language: ko_KR\n"
+"X-Generator: Poedit 1.6.5\n"
+
+#: client/app/examples/anguar-gettext/anguar-gettext.html
+msgid "Hi!"
+msgstr "안녕"
