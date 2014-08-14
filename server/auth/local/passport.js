@@ -1,25 +1,26 @@
+'use strict';
+
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var UserService = loquire.user('service');
 
-exports.setup = function (User, config) {
+exports.setup = function () {
   passport.use(new LocalStrategy({
       usernameField: 'email',
-      passwordField: 'password' // this is the virtual field on the model
+      passwordField: 'password'
     },
     function(email, password, done) {
-      User.findOne({
-        email: email.toLowerCase()
-      }, function(err, user) {
-        if (err) return done(err);
-
-        if (!user) {
-          return done(null, false, { message: 'This email is not registered.' });
-        }
-        if (!user.authenticate(password)) {
-          return done(null, false, { message: 'This password is not correct.' });
-        }
-        return done(null, user);
-      });
+      UserService
+        .authenticate({
+          email: email,
+          password: password
+        })
+        .then(function(user) {
+          return done(null, user);
+        })
+        .catch(function(err) {
+          return done(err);
+        });
     }
   ));
 };

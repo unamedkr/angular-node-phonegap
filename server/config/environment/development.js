@@ -5,8 +5,6 @@
 module.exports = {
   // MongoDB connection options
   mongo: {
-    uri: 'mongodb://localhost/angularnodephonegap-dev'
-  },
-
-  seedDB: true
+    uri: 'mongodb://localhost/link-dev'
+  }
 };

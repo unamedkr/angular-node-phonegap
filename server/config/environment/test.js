@@ -5,6 +5,6 @@
 module.exports = {
   // MongoDB connection options
   mongo: {
-    uri: 'mongodb://localhost/angularnodephonegap-test'
+    uri: 'mongodb://localhost/link-test'
   }
 };

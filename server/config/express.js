@@ -9,51 +9,64 @@ var favicon = require('static-favicon');
 var morgan = require('morgan');
 var compression = require('compression');
 var bodyParser = require('body-parser');
+var multer = require('multer');
 var methodOverride = require('method-override');
-var cookieParser = require('cookie-parser');
-var errorHandler = require('errorhandler');
 var path = require('path');
-var config = require('./environment');
 var passport = require('passport');
-var session = require('express-session');
-var mongoStore = require('connect-mongo')(session);
-var mongoose = require('mongoose');
+var config = loquire.config();
+var errorhandler = loquire.components('errorhandler');
+var cors = loquire.components('cors');
+var redirection = loquire.components('redirection');
 
-module.exports = function(app) {
-  var env = app.get('env');
+var app = express();
 
-  app.set('views', config.root + '/server/views');
-  app.engine('html', require('ejs').renderFile);
-  app.set('view engine', 'html');
-  app.use(compression());
-  app.use(bodyParser.urlencoded({ extended: false }));
-  app.use(bodyParser.json());
-  app.use(methodOverride());
-  app.use(cookieParser());
-  app.use(passport.initialize());
+var env = app.get('env');
 
-  // Persist sessions with mongoStore
-  // We need to enable sessions for passport twitter because its an oauth 1.0 strategy
-  app.use(session({
-    secret: config.secrets.session,
-    resave: true,
-    saveUninitialized: true,
-    store: new mongoStore({ mongoose_connection: mongoose.connection })
+if ('production' === env) {
+  app.use(redirection());
+}
+
+app.use(compression());
+
+if ('production' === env) {
+  app.use(favicon(path.join(config.root, 'public', 'favicon.ico')));
+  app.use(express.static(path.join(config.root, 'public')));
+  app.set('public', config.root + '/public');
+}
+
+if ('development' === env || 'test' === env) {
+  app.use(require('connect-livereload')());
+  app.use(express.static(path.join(config.root, '.tmp')));
+  app.use(express.static(path.join(config.root, 'client')));
+  app.set('public', config.root + '/client');
+}
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(multer({ dest: './.tmp/'}));
+app.use(methodOverride());
+app.use(passport.initialize());
+app.use(morgan('dev'));
+
+app.route('/api/*')
+  .all(cors({
+    origin: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Auth-Token'],
+    credentials: true,
+    maxAge: 86400
   }));
-  
-  if ('production' === env) {
-    app.use(favicon(path.join(config.root, 'public', 'favicon.ico')));
-    app.use(express.static(path.join(config.root, 'public')));
-    app.set('appPath', config.root + '/public');
-    app.use(morgan('dev'));
-  }
 
-  if ('development' === env || 'test' === env) {
-    app.use(require('connect-livereload')());
-    app.use(express.static(path.join(config.root, '.tmp')));
-    app.use(express.static(path.join(config.root, 'client')));
-    app.set('appPath', 'client');
-    app.use(morgan('dev'));
-    app.use(errorHandler()); // Error handler - has to be last
-  }
-};
+loquire.config('routes')(app);
+
+app.use(errorhandler());
+
+var server = require('http').createServer(app);
+loquire.config('socketio')(server);
+
+// Start server
+server.listen(config.port, config.ip, function () {
+  console.log('Express server listening on %s:%d, in %s mode', config.ip, config.port, app.get('env'));
+});
+
+module.exports = app;

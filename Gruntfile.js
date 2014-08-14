@@ -1,3 +1,4 @@
+// Generated on 2014-08-11 using generator-link 0.0.1
 'use strict';
 
 module.exports = function (grunt) {
@@ -15,7 +16,9 @@ module.exports = function (grunt) {
     ngtemplates: 'grunt-angular-templates',
     cdnify: 'grunt-google-cdn',
     protractor: 'grunt-protractor-runner',
-    injector: 'grunt-asset-injector'
+    injector: 'grunt-asset-injector',
+    nggettext_extract: 'grunt-angular-gettext',
+    nggettext_compile: 'grunt-angular-gettext',
   });
 
   // Time how long tasks take. Can help when optimizing build times
@@ -31,6 +34,29 @@ module.exports = function (grunt) {
       dist: 'dist',
       mobile: 'mobile'
     },
+
+    nggettext_extract: {
+      pot: {
+        files: {
+          'client/components/translation/origin_template.pot':
+          ['<%= yeoman.client %>/app/**/*.html',
+           '<%= yeoman.client %>/components/translation/*.html']
+        }
+      },
+    },
+
+    nggettext_compile: {
+      all: {
+        options: {
+          module: 'linkApp'
+        },
+        files: {
+          '<%= yeoman.client %>/components/translation/translations.js': 
+          ['<%= yeoman.client %>/components/translation/*.po']
+        }
+      },
+    },
+    
     express: {
       options: {
         port: process.env.PORT || 9000
@@ -138,6 +164,7 @@ module.exports = function (grunt) {
           dot: true,
           src: [
             '.tmp',
+            // '<%= yeoman.dist %>/*',
             '<%= yeoman.dist %>/*',
             '!<%= yeoman.dist %>/.git*',
             '!<%= yeoman.dist %>/.openshift',
@@ -209,7 +236,7 @@ module.exports = function (grunt) {
     },
 
     // Automatically inject Bower components into the app
-    bowerInstall: {
+    wiredep: {
       target: {
         src: '<%= yeoman.client %>/index.html',
         ignorePath: '<%= yeoman.client %>/',
@@ -300,7 +327,7 @@ module.exports = function (grunt) {
     ngtemplates: {
       options: {
         // This should be the name of your apps angular module
-        module: '<%= scriptAppName %>',
+        module: 'linkApp',
         htmlmin: {
           collapseBooleanAttributes: true,
           collapseWhitespace: true,
@@ -412,7 +439,8 @@ module.exports = function (grunt) {
 
     mochaTest: {
       options: {
-        reporter: 'spec'
+        reporter: 'spec',
+        require: ['server/app.js', 'server/utils/test.js'],
       },
       src: ['server/**/*.spec.js']
     },
@@ -483,11 +511,12 @@ module.exports = function (grunt) {
         }
       }
     },
+
     cordovacli: {
       options: {
         path: '<%= yeoman.mobile %>',
-        id: 'com.example.angularNodePhonegap',
-        name: 'angularNodePhonegap',
+        id: 'com.link',
+        name: 'link',
       },
       create: {
         options: {
@@ -615,7 +644,7 @@ module.exports = function (grunt) {
         'env:all',
         'concurrent:server',
         'injector',
-        'bowerInstall',
+        'wiredep',
         'autoprefixer',
         'concurrent:debug'
       ]);
@@ -626,7 +655,7 @@ module.exports = function (grunt) {
       'env:all',
       'concurrent:server',
       'injector',
-      'bowerInstall',
+      'wiredep',
       'autoprefixer',
       'express:dev',
       'wait',
@@ -667,7 +696,7 @@ module.exports = function (grunt) {
         'env:test',
         'concurrent:test',
         'injector',
-        'bowerInstall',
+        'wiredep',
         'autoprefixer',
         'express:dev',
         'protractor'
@@ -684,7 +713,7 @@ module.exports = function (grunt) {
     'clean:dist',
     'concurrent:dist',
     'injector',
-    'bowerInstall',
+    'wiredep',
     'useminPrepare',
     'autoprefixer',
     'ngtemplates',
@@ -697,6 +726,7 @@ module.exports = function (grunt) {
     'rev',
     'usemin'
   ]);
+
 
   grunt.registerTask('run', function (target) {
 
